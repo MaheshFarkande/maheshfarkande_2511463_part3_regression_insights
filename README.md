@@ -42,23 +42,22 @@ Targets `monthly_sales` and `monthly_profit` are also numeric.
 - `region` — 4 levels (nominal) → one-hot / dummy encode (drop one level as baseline).
 - `store_type` — 4 levels (nominal) → one-hot / dummy encode. Note **Airport is small** (only 28 rows), so its coefficient will be less stable.
 - `holiday_flag` — already a 0/1 binary indicator; usable as-is, no encoding needed.
-- `store_id` — categorical identifier (see §6); not a normal predictor.
+- `store_id` — categorical identifier ; not a normal predictor.
 
 ## 5. Variables that may need cleaning or transformation
 
-- **Missing values:** `competitor_distance_km` (6 missing, ~1.9%) and `customer_rating` (8 missing, ~2.5%). Impute (median is reasonable given mild skew) or drop those rows; document the choice.
-- **`avg_discount_pct` units:** stored as a fraction (0–0.292), not whole percentages. Keep the scale consistent and don't mix with the 0–100 `inventory_availability_pct`. Decide on one convention before reporting coefficients.
-- **`marketing_spend` skew / outliers:** right-skewed with a few large values (max 172k vs. median ~55k). Consider a log transform or outlier review so a handful of stores don't dominate the fit.
+- **Missing values:** `competitor_distance_km` (6 missing, ~1.9%) and `customer_rating` (8 missing, ~2.5%). Impute (median is reasonable given mild skew) 
+- **`avg_discount_pct` units:** stored as a fraction (0–0.292), not whole percentages. 
+- **`marketing_spend` skew / outliers:** right-skewed with a few large values (max 172k vs. median ~55k).
 - **`month` encoding:** currently a datetime. For regression, treat it as a categorical seasonality factor (month dummies) or a simple time index, rather than feeding the raw datetime in.
-- **Scaling:** predictors span very different ranges (spend in tens of thousands vs. ratings on a 0–5 scale). Standardize/normalize if using regularized regression or for comparable coefficients.
-- **Multicollinearity:** `footfall` and `staff_count` are highly correlated (r ≈ 0.92) — they carry overlapping information. Including both inflates variance (high VIF); consider keeping one, combining them (e.g. sales-per-staff), or using a regularized model.
+- **Multicollinearity:** `footfall` and `staff_count` are highly correlated (r ≈ 0.92) — they carry overlapping information. Including both inflates variance (high VIF); 
 
 ## 6. Variables that may not be useful for regression
 
-- **`store_id`** — a unique identifier with no intrinsic predictive meaning. Exclude it as a feature. (It is still valuable for understanding the panel structure or, in a more advanced model, as a grouping variable for fixed/random effects.)
-- **`customer_rating`** — shows essentially no linear correlation with either target (≈ −0.03 to −0.09). It may be weak or irrelevant for a linear model; test before discarding, but don't expect much lift.
+- **`store_id`** — a unique identifier with no intrinsic predictive meaning. . (It is still valuable for understanding the panel structure or, in a more advanced model, as a grouping variable for fixed/random effects.)
+- **`customer_rating`** — shows essentially no linear correlation with either target (≈ −0.03 to −0.09). It may be weak or irrelevant for a linear model; 
 - **The non-target sales/profit column** — whichever of `monthly_sales` / `monthly_profit` is *not* chosen as the dependent variable should not be used as a predictor of the other (outcome leakage).
-- **`month` raw datetime** — not useful in raw form (see §5); only useful once transformed.
+- **`month` raw datetime** — not useful in raw form; only useful once transformed.
 
 ---
 
